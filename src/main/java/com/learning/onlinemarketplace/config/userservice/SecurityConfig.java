@@ -1,4 +1,4 @@
-package com.learning.onlinemarketplace.config.userservice.config;
+package com.learning.onlinemarketplace.config.userservice;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
