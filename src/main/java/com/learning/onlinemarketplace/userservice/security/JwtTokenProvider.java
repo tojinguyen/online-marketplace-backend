@@ -1,6 +1,6 @@
-package com.learning.onlinemarketplace.security.userservice;
+package com.learning.onlinemarketplace.userservice.security;
 
-import com.learning.onlinemarketplace.model.userservice.User;
+import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,8 +20,8 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenValidityInMilliseconds;
 
-    // Tạo Access Token
-    public String generateAccessToken(User user) {
+    // Create Access Token
+    public String generateAccessToken(UserAccount user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date())
@@ -30,8 +30,8 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // Tạo Refresh Token
-    public String generateRefreshToken(User user) {
+    // Create Refresh Token
+    public String generateRefreshToken(UserAccount user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date())

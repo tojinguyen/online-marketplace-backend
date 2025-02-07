@@ -1,4 +1,4 @@
-package com.learning.onlinemarketplace.model.userservice;
+package com.learning.onlinemarketplace.userservice.model;
 
 
 import jakarta.persistence.Column;
@@ -10,12 +10,12 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "user")
+@Table(name = "user_accounts")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class UserAccount {
     @Id
     @Column(name = "user_id", nullable = false, unique = true)
     private String userId;

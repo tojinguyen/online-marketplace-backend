@@ -1,6 +1,6 @@
-package com.learning.onlinemarketplace.repository.userservice;
+package com.learning.onlinemarketplace.userservice.repository;
 
-import com.learning.onlinemarketplace.model.userservice.UserProfile;
+import com.learning.onlinemarketplace.userservice.model.UserProfile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ProfileRepository extends MongoRepository<UserProfile, String> {

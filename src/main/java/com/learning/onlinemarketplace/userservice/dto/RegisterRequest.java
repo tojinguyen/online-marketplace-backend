@@ -1,4 +1,4 @@
-package com.learning.onlinemarketplace.dto.userservice;
+package com.learning.onlinemarketplace.userservice.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,5 +8,4 @@ import lombok.Setter;
 public class RegisterRequest {
     private String email;
     private String password;
-    private String role;
 }

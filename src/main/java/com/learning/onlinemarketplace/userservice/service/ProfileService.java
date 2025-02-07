@@ -1,6 +1,6 @@
-package com.learning.onlinemarketplace.service.userservice;
+package com.learning.onlinemarketplace.userservice.service;
 
-import com.learning.onlinemarketplace.repository.userservice.ProfileRepository;
+import com.learning.onlinemarketplace.userservice.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

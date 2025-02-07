@@ -1,4 +1,4 @@
-package com.learning.onlinemarketplace.model.userservice;
+package com.learning.onlinemarketplace.userservice.model;
 
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
