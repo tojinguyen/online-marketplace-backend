@@ -1,5 +1,6 @@
 package com.learning.onlinemarketplace.userservice.model;
 
+import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,4 +24,7 @@ public class VerificationCode {
 
     @Column(nullable = false)
     private Instant expiresAt;
+
+    @Enumerated(EnumType.STRING)
+    private VerificationType type;
 }

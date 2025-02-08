@@ -2,10 +2,10 @@ package com.learning.onlinemarketplace.userservice.service;
 
 import com.learning.onlinemarketplace.userservice.dto.LoginRequest;
 import com.learning.onlinemarketplace.userservice.dto.LoginResponse;
-import com.learning.onlinemarketplace.userservice.dto.RegisterRequest;
-import com.learning.onlinemarketplace.userservice.dto.VerifyCodeRequest;
+import com.learning.onlinemarketplace.userservice.dto.ResetPasswordRequest;
+import com.learning.onlinemarketplace.userservice.dto.VerifyRegisterCodeRequest;
+import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
-import com.learning.onlinemarketplace.userservice.model.VerificationCode;
 import com.learning.onlinemarketplace.userservice.repository.UserRepository;
 import com.learning.onlinemarketplace.userservice.repository.VerificationCodeRepository;
 import com.learning.onlinemarketplace.userservice.security.JwtTokenProvider;
@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -35,36 +33,24 @@ public class AuthService {
     private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    private EmailService emailService;
+    private VerificationCodeService verificationCodeService;
 
+
+    // Region: Register
     @Transactional
-    public void sendVerificationCode(RegisterRequest registerRequest) {
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
-        }
-
-        // Tạo mã xác nhận
-        var verificationCode = new VerificationCode();
-        verificationCode.setEmail(registerRequest.getEmail());
-        verificationCode.setCode(UUID.randomUUID().toString().substring(0, 6)); // OTP with 6 digits
-        verificationCode.setExpiresAt(Instant.now().plus(Duration.ofMinutes(5)));
-
-        verificationCodeRepository.deleteByEmail(registerRequest.getEmail());
-        verificationCodeRepository.save(verificationCode);
-
-        // Gửi email
-        emailService.sendVerificationEmail(registerRequest.getEmail(), verificationCode.getCode());
+    public void sendRegisterVerificationCode(String email) {
+        verificationCodeService.sendVerificationCode(email, VerificationType.REGISTER);
     }
 
     @Transactional
-    public UserAccount verifyAndCreateUser(VerifyCodeRequest registerRequest) {
-        var verificationOpt = verificationCodeRepository.findByEmail(registerRequest.getEmail());
+    public UserAccount verifyAndCreateUser(VerifyRegisterCodeRequest registerRequest) {
+        var verificationOpt = verificationCodeRepository.findByEmailAndType(registerRequest.getEmail(), VerificationType.REGISTER);
         if (verificationOpt.isEmpty() || verificationOpt.get().getExpiresAt().isBefore(Instant.now()) || !verificationOpt.get().getCode().equals(registerRequest.getCode())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or expired code");
         }
 
         // Delete the verification code
-        verificationCodeRepository.deleteByEmail(registerRequest.getEmail());
+        verificationCodeRepository.deleteByEmailAndType(registerRequest.getEmail(), VerificationType.REGISTER);
 
         // Create the user
         var user = new UserAccount();
@@ -77,7 +63,34 @@ public class AuthService {
 
         return userRepository.save(user);
     }
+    // EndRegion
 
+    // Region: Reset Password
+    @Transactional
+    public void sendResetPasswordVerificationCode(String email) {
+        verificationCodeService.sendVerificationCode(email, VerificationType.RESET_PASSWORD);
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        var verificationOpt = verificationCodeRepository.findByEmailAndType(resetPasswordRequest.getEmail(), VerificationType.RESET_PASSWORD);
+        if (verificationOpt.isEmpty() || verificationOpt.get().getExpiresAt().isBefore(Instant.now()) || !verificationOpt.get().getCode().equals(resetPasswordRequest.getCode())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or expired code");
+        }
+
+        // Delete the verification code
+        verificationCodeRepository.deleteByEmailAndType(resetPasswordRequest.getEmail(), VerificationType.RESET_PASSWORD);
+
+        // Update the user's password
+        var user = userRepository.findByEmail(resetPasswordRequest.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email not found"));
+
+        user.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
+        userRepository.save(user);
+    }
+    // EndRegion
+
+    // Region: Login
     public LoginResponse login(LoginRequest loginRequest){
         var user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email not found"));
@@ -91,4 +104,5 @@ public class AuthService {
 
         return new LoginResponse(accessToken, refreshToken);
     }
+    // EndRegion
 }
