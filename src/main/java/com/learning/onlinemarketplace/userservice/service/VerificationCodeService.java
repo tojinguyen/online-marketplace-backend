@@ -4,8 +4,10 @@ import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import com.learning.onlinemarketplace.userservice.model.VerificationCode;
 import com.learning.onlinemarketplace.userservice.repository.UserRepository;
 import com.learning.onlinemarketplace.userservice.repository.VerificationCodeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,6 +17,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class VerificationCodeService {
     @Autowired
     private UserRepository userRepository;
@@ -25,7 +28,6 @@ public class VerificationCodeService {
     @Autowired
     private EmailService emailService;
 
-    // Region: Common
     @Transactional
     public void sendVerificationCode(String email, VerificationType type) {
         if (userRepository.existsByEmail(email)) {
@@ -45,5 +47,11 @@ public class VerificationCodeService {
         // Gửi email
         emailService.sendVerificationEmail(email, verificationCode.getCode());
     }
-    // EndRegion
+
+    @Scheduled(cron = "0 0 1 * * ?") // Run at 01:00 AM every day
+    public void deleteExpiredVerificationCodes() {
+        log.info("Scheduled job is running...");
+        var deletedCount = verificationCodeRepository.deleteByExpiresAtBefore(Instant.now());
+        log.info("Deleted {} expired verification codes", deletedCount);
+    }
 }
