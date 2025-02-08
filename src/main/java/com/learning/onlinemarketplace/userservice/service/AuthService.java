@@ -1,9 +1,6 @@
 package com.learning.onlinemarketplace.userservice.service;
 
-import com.learning.onlinemarketplace.userservice.dto.LoginRequest;
-import com.learning.onlinemarketplace.userservice.dto.LoginResponse;
-import com.learning.onlinemarketplace.userservice.dto.ResetPasswordRequest;
-import com.learning.onlinemarketplace.userservice.dto.VerifyRegisterCodeRequest;
+import com.learning.onlinemarketplace.userservice.dto.*;
 import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.repository.UserRepository;
@@ -17,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -103,6 +101,25 @@ public class AuthService {
         var refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
         return new LoginResponse(accessToken, refreshToken);
+    }
+    // EndRegion
+
+    // Region: Google Login
+    public UserAccount ProcessOAuthPostLogin(String email, String name){
+        Optional<UserAccount> existUser = userRepository.findByEmail(email);
+        if(existUser.isPresent()){
+            return existUser.get();
+        }
+        else {
+            var newUserAccount = new UserAccount();
+            var now = Instant.now();
+
+            newUserAccount.setEmail(email);
+            newUserAccount.setCreatedAt(now);
+            newUserAccount.setUpdatedAt(now);
+
+            return userRepository.save(newUserAccount);
+        }
     }
     // EndRegion
 }

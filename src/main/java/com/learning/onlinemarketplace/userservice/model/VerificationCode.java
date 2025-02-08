@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "verification_code")
@@ -13,8 +14,7 @@ import java.time.Instant;
 @Setter
 public class VerificationCode {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private String id = UUID.randomUUID().toString();
 
     @Column(nullable = false, unique = true)
     private String email;

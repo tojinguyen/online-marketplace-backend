@@ -50,6 +50,17 @@ public class AuthController {
         authService.resetPassword(resetPasswordRequest);
         return ResponseEntity.ok("Password reset successfully");
     }
+    //EndRegion
 
+    //Region:  Logout
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+//        authService.logout(token);
+        return ResponseEntity.ok("Logout successfully");
+    }
+    //EndRegion
+
+
+    //Region: Login with Google
     //EndRegion
 }
