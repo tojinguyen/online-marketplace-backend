@@ -18,3 +18,4 @@ cd online-marketplace-backend
 ### 2. Cài đặt biến môi trường
 ```bash
 cp .env.template .env
+```
