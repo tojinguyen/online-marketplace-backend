@@ -13,6 +13,7 @@ Trước khi chạy dự án, bạn cần cấu hình môi trường và các bi
 ```bash
 git clone https://github.com/username/online-marketplace-backend.git
 cd online-marketplace-backend
+```
 
 ### 2. Cài đặt biến môi trường
 cp .env.template .env
