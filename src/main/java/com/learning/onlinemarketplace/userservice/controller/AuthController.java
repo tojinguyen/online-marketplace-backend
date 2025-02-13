@@ -1,6 +1,10 @@
 package com.learning.onlinemarketplace.userservice.controller;
 
-import com.learning.onlinemarketplace.userservice.dto.*;
+import com.learning.onlinemarketplace.userservice.dto.request.LoginRequest;
+import com.learning.onlinemarketplace.userservice.dto.request.RegisterRequest;
+import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordRequest;
+import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
+import com.learning.onlinemarketplace.userservice.dto.response.LoginResponse;
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;

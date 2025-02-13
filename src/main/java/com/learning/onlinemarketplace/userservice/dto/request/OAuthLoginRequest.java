@@ -1,4 +1,4 @@
-package com.learning.onlinemarketplace.userservice.dto;
+package com.learning.onlinemarketplace.userservice.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

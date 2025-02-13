@@ -1,6 +1,9 @@
 package com.learning.onlinemarketplace.userservice.service;
 
-import com.learning.onlinemarketplace.userservice.dto.*;
+import com.learning.onlinemarketplace.userservice.dto.request.LoginRequest;
+import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordRequest;
+import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
+import com.learning.onlinemarketplace.userservice.dto.response.LoginResponse;
 import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.repository.UserRepository;

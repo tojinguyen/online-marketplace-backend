@@ -1,4 +1,4 @@
-package com.learning.onlinemarketplace.userservice.dto;
+package com.learning.onlinemarketplace.userservice.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
