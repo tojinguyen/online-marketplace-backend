@@ -26,14 +26,10 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         OAuth2User oauthUser = token.getPrincipal();
 
-        // Lấy thông tin cần thiết từ OAuth2User
         String email = oauthUser.getAttribute("email");
-        String name = oauthUser.getAttribute("name");
 
-        // Xử lý (tạo mới người dùng nếu chưa tồn tại)
-        authService.ProcessOAuthPostLogin(email, name);
+        authService.ProcessOAuthPostLogin(email);
 
-        // Tiếp tục redirect theo mặc định (ở đây chuyển đến /home)
         super.onAuthenticationSuccess(request, response, authentication);
     }
 }

@@ -6,7 +6,6 @@ import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordReque
 import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
 import com.learning.onlinemarketplace.userservice.dto.response.ApiResponse;
 import com.learning.onlinemarketplace.userservice.dto.response.AuthenticationResponse;
-import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,14 +21,24 @@ public class AuthController {
     //Region:  Register
     @PostMapping("/send-verification-code")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> sendVerificationCode(@RequestBody RegisterRequest registerRequest) {
-        authService.sendRegisterVerificationCode(registerRequest.getEmail());
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Verification code sent to " + registerRequest.getEmail());
+    public ResponseEntity<ApiResponse<String>> sendVerificationCode(@RequestBody RegisterRequest registerRequest) {
+        try {
+            authService.sendRegisterVerificationCode(registerRequest.getEmail());
+            return ResponseEntity.ok(ApiResponse.<String>builder()
+                    .success(true)
+                    .message("Verification code sent successfully.")
+                    .data("Verification code sent to " + registerRequest.getEmail())
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.<String>builder()
+                    .success(false)
+                    .message(e.getMessage())
+                    .build());
+        }
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<UserAccount> verify(@RequestBody VerifyRegisterCodeRequest verifyRegisterCodeRequest) {
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> verify(@RequestBody VerifyRegisterCodeRequest verifyRegisterCodeRequest) {
         return ResponseEntity.ok(authService.verifyAndCreateUser(verifyRegisterCodeRequest));
     }
     //EndRegion
@@ -44,24 +53,56 @@ public class AuthController {
 
     //Region:  Reset Password
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody String email) {
-        authService.sendResetPasswordVerificationCode(email);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Verification code sent to " + email);
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody String email) {
+        try {
+            authService.sendResetPasswordVerificationCode(email);
+            return ResponseEntity.ok(ApiResponse.<String>builder()
+                    .success(true)
+                    .message("Verification code sent successfully.")
+                    .data("Verification code sent to " + email)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.<String>builder()
+                    .success(false)
+                    .message(e.getMessage())
+                    .build());
+        }
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
-        authService.resetPassword(resetPasswordRequest);
-        return ResponseEntity.ok("Password reset successfully");
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        try {
+            authService.resetPassword(resetPasswordRequest);
+            return ResponseEntity.ok(ApiResponse.<String>builder()
+                    .success(true)
+                    .message("Password reset successfully.")
+                    .data("Password reset successfully.")
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.<String>builder()
+                    .success(false)
+                    .message(e.getMessage())
+                    .build());
+        }
     }
     //EndRegion
 
     //Region:  Logout
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
-//        authService.logout(token);
-        return ResponseEntity.ok("Logout successfully");
+    public ResponseEntity<ApiResponse<String>> logout(@RequestHeader("Authorization") String token) {
+        try {
+            authService.logout(token);
+            return ResponseEntity.ok(ApiResponse.<String>builder()
+                    .success(true)
+                    .message("Logout successfully.")
+                    .data("Logout successfully.")
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.<String>builder()
+                    .success(false)
+                    .message(e.getMessage())
+                    .build());
+        }
     }
     //EndRegion
 

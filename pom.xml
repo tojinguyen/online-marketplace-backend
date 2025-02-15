@@ -176,6 +176,19 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.44.2</version> <!-- Bạn có thể thay đổi phiên bản phù hợp -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apply</goal> <!-- Để tự động format mã nguồn khi build -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>

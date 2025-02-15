@@ -5,6 +5,7 @@ import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordReque
 import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
 import com.learning.onlinemarketplace.userservice.dto.response.ApiResponse;
 import com.learning.onlinemarketplace.userservice.dto.response.AuthenticationResponse;
+import com.learning.onlinemarketplace.userservice.dto.response.ResetPasswordResponse;
 import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.repository.UserRepository;
@@ -45,7 +46,7 @@ public class AuthService {
     }
 
     @Transactional
-    public UserAccount verifyAndCreateUser(VerifyRegisterCodeRequest registerRequest) {
+    public ApiResponse<AuthenticationResponse> verifyAndCreateUser(VerifyRegisterCodeRequest registerRequest) {
         var verificationOpt = verificationCodeRepository.findByEmailAndType(registerRequest.getEmail(), VerificationType.REGISTER);
         if (verificationOpt.isEmpty() || verificationOpt.get().getExpiresAt().isBefore(Instant.now()) || !verificationOpt.get().getCode().equals(registerRequest.getCode())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or expired code");
@@ -63,7 +64,13 @@ public class AuthService {
         user.setCreatedAt(now);
         user.setUpdatedAt(now);
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        var accessToken = jwtTokenProvider.generateAccessToken(user);
+        var refreshToken = jwtTokenProvider.generateRefreshToken(user);
+        var authResponse = new AuthenticationResponse(accessToken, refreshToken);
+
+        return ApiResponse.<AuthenticationResponse>builder().success(true).message("User created successfully").data(authResponse).build();
     }
     // EndRegion
 
@@ -74,7 +81,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
+    public ApiResponse<ResetPasswordResponse> resetPassword(ResetPasswordRequest resetPasswordRequest) {
         var verificationOpt = verificationCodeRepository.findByEmailAndType(resetPasswordRequest.getEmail(), VerificationType.RESET_PASSWORD);
         if (verificationOpt.isEmpty() || verificationOpt.get().getExpiresAt().isBefore(Instant.now()) || !verificationOpt.get().getCode().equals(resetPasswordRequest.getCode())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or expired code");
@@ -89,11 +96,13 @@ public class AuthService {
 
         user.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
         userRepository.save(user);
+
+        return ApiResponse.<ResetPasswordResponse>builder().success(true).message("Password reset successfully").build();
     }
     // EndRegion
 
     // Region: Login
-    public ApiResponse<AuthenticationResponse> login(LoginRequest loginRequest){
+    public ApiResponse<AuthenticationResponse> login(LoginRequest loginRequest) {
         var user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email not found"));
 
@@ -105,17 +114,21 @@ public class AuthService {
         var refreshToken = jwtTokenProvider.generateRefreshToken(user);
         var authResponse = new AuthenticationResponse(accessToken, refreshToken);
 
-        return new ApiResponse<>(true, "Login successful", authResponse);
+        return ApiResponse.<AuthenticationResponse>builder().success(true).message("Login Success").data(authResponse).build();
+    }
+    // EndRegion
+
+    // Region: Logout
+    public void logout(String token) {
     }
     // EndRegion
 
     // Region: Google Login
-    public UserAccount ProcessOAuthPostLogin(String email, String name){
+    public void ProcessOAuthPostLogin(String email) {
         Optional<UserAccount> existUser = userRepository.findByEmail(email);
-        if(existUser.isPresent()){
-            return existUser.get();
-        }
-        else {
+        if (existUser.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        } else {
             var newUserAccount = new UserAccount();
             var now = Instant.now();
 
@@ -123,7 +136,7 @@ public class AuthService {
             newUserAccount.setCreatedAt(now);
             newUserAccount.setUpdatedAt(now);
 
-            return userRepository.save(newUserAccount);
+            userRepository.save(newUserAccount);
         }
     }
     // EndRegion

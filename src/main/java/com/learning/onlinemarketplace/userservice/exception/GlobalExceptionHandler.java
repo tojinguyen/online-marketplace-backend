@@ -11,18 +11,12 @@ import java.util.Objects;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = RuntimeException.class)
-    ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException e) {
-        var apiResponse = new ApiResponse<String>();
-        apiResponse.setSuccess(false);
-        apiResponse.setMessage(e.getMessage());
-        return ResponseEntity.badRequest().body(apiResponse);
+    ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException e) {
+        return ResponseEntity.badRequest().body(ApiResponse.builder().success(false).message(e.getMessage()).build());
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse<String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        var apiResponse = new ApiResponse<String>();
-        apiResponse.setSuccess(false);
-        apiResponse.setMessage(Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage());
-        return ResponseEntity.badRequest().body(Objects.requireNonNull(apiResponse));
+    ResponseEntity<ApiResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        return ResponseEntity.badRequest().body(Objects.requireNonNull(ApiResponse.builder().success(false).message(Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage()).build()));
     }
 }
