@@ -4,7 +4,8 @@ import com.learning.onlinemarketplace.userservice.dto.request.LoginRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.RegisterRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
-import com.learning.onlinemarketplace.userservice.dto.response.LoginResponse;
+import com.learning.onlinemarketplace.userservice.dto.response.ApiResponse;
+import com.learning.onlinemarketplace.userservice.dto.response.AuthenticationResponse;
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class AuthController {
 
     //Region:  Login
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> login(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
     }
     //EndRegion

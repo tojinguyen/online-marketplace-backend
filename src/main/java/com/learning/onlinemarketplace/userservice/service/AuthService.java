@@ -3,7 +3,8 @@ package com.learning.onlinemarketplace.userservice.service;
 import com.learning.onlinemarketplace.userservice.dto.request.LoginRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
-import com.learning.onlinemarketplace.userservice.dto.response.LoginResponse;
+import com.learning.onlinemarketplace.userservice.dto.response.ApiResponse;
+import com.learning.onlinemarketplace.userservice.dto.response.AuthenticationResponse;
 import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.repository.UserRepository;
@@ -92,7 +93,7 @@ public class AuthService {
     // EndRegion
 
     // Region: Login
-    public LoginResponse login(LoginRequest loginRequest){
+    public ApiResponse<AuthenticationResponse> login(LoginRequest loginRequest){
         var user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email not found"));
 
@@ -102,8 +103,9 @@ public class AuthService {
 
         var accessToken = jwtTokenProvider.generateAccessToken(user);
         var refreshToken = jwtTokenProvider.generateRefreshToken(user);
+        var authResponse = new AuthenticationResponse(accessToken, refreshToken);
 
-        return new LoginResponse(accessToken, refreshToken);
+        return new ApiResponse<>(true, "Login successful", authResponse);
     }
     // EndRegion
 
