@@ -41,6 +41,8 @@ public class VerificationCodeService {
         verificationCode.setExpiresAt(Instant.now().plus(Duration.ofMinutes(5)));
         verificationCode.setType(type);
 
+        log.info("Sending verification code to " + email + " with code " + verificationCode.getCode());
+
         verificationCodeRepository.deleteByEmailAndType(email, type);
         verificationCodeRepository.save(verificationCode);
 

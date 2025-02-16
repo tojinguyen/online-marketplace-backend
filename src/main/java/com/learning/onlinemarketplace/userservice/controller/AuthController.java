@@ -7,19 +7,21 @@ import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCode
 import com.learning.onlinemarketplace.userservice.dto.response.ApiResponse;
 import com.learning.onlinemarketplace.userservice.dto.response.AuthenticationResponse;
 import com.learning.onlinemarketplace.userservice.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("auth")
+@RequestMapping("/auth")
+@Slf4j
 public class AuthController {
     @Autowired
     private AuthService authService;
 
     //Region:  Register
-    @PostMapping("/send-verification-code")
+    @PostMapping("/send-register-code")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse<String>> sendVerificationCode(@RequestBody RegisterRequest registerRequest) {
         try {
@@ -30,14 +32,15 @@ public class AuthController {
                     .data("Verification code sent to " + registerRequest.getEmail())
                     .build());
         } catch (Exception e) {
+            log.info("Failed to send verification code: " + e.getMessage());
             return ResponseEntity.badRequest().body(ApiResponse.<String>builder()
                     .success(false)
-                    .message(e.getMessage())
+                    .message("Failed to send verification code.")
                     .build());
         }
     }
 
-    @PostMapping("/verify")
+    @PostMapping("/verify-register-code")
     public ResponseEntity<ApiResponse<AuthenticationResponse>> verify(@RequestBody VerifyRegisterCodeRequest verifyRegisterCodeRequest) {
         return ResponseEntity.ok(authService.verifyAndCreateUser(verifyRegisterCodeRequest));
     }
