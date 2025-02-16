@@ -6,11 +6,8 @@ import com.learning.onlinemarketplace.userservice.repository.UserRepository;
 import com.learning.onlinemarketplace.userservice.repository.VerificationCodeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -28,12 +25,7 @@ public class VerificationCodeService {
     @Autowired
     private EmailService emailService;
 
-    @Transactional
     public void sendVerificationCode(String email, VerificationType type) {
-        if (userRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
-        }
-
         // Tạo mã xác nhận
         var verificationCode = new VerificationCode();
         verificationCode.setEmail(email);

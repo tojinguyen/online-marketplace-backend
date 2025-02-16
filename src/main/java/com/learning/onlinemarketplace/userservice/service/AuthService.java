@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -42,6 +43,9 @@ public class AuthService {
     // Region: Register
     @Transactional
     public void sendRegisterVerificationCode(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        }
         verificationCodeService.sendVerificationCode(email, VerificationType.REGISTER);
     }
 
@@ -59,8 +63,10 @@ public class AuthService {
         var user = new UserAccount();
         var now = Instant.now();
 
+        user.setUserId(UUID.randomUUID().toString());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setRole("USER");
         user.setCreatedAt(now);
         user.setUpdatedAt(now);
 

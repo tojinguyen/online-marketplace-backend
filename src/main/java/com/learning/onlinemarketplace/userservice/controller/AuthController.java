@@ -1,9 +1,6 @@
 package com.learning.onlinemarketplace.userservice.controller;
 
-import com.learning.onlinemarketplace.userservice.dto.request.LoginRequest;
-import com.learning.onlinemarketplace.userservice.dto.request.RegisterRequest;
-import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordRequest;
-import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
+import com.learning.onlinemarketplace.userservice.dto.request.*;
 import com.learning.onlinemarketplace.userservice.dto.response.ApiResponse;
 import com.learning.onlinemarketplace.userservice.dto.response.AuthenticationResponse;
 import com.learning.onlinemarketplace.userservice.service.AuthService;
@@ -56,9 +53,9 @@ public class AuthController {
 
     //Region:  Reset Password
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody String email) {
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody ForgotPasswordRequest email) {
         try {
-            authService.sendResetPasswordVerificationCode(email);
+            authService.sendResetPasswordVerificationCode(email.getEmail());
             return ResponseEntity.ok(ApiResponse.<String>builder()
                     .success(true)
                     .message("Verification code sent successfully.")
