@@ -10,7 +10,7 @@ import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.repository.UserRepository;
 import com.learning.onlinemarketplace.userservice.repository.VerificationCodeRepository;
-import com.learning.onlinemarketplace.userservice.security.JwtTokenProvider;
+import com.learning.onlinemarketplace.userservice.security.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtUtils jwtTokenProvider;
 
     @Autowired
     private VerificationCodeService verificationCodeService;
@@ -125,7 +126,22 @@ public class AuthService {
     // EndRegion
 
     // Region: Logout
-    public void logout(String token) {
+    public void logout(String token) throws Exception {
+        // Remove prefix if present
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token");
+        }
+
+        // Lấy thời gian hết hạn của token
+        Date expirationDate = jwtTokenProvider.getExpirationDateFromToken(token);
+        long ttl = expirationDate.getTime() - System.currentTimeMillis();
+        if (ttl <= 0) {
+            throw new Exception("Token đã hết hạn.");
+        }
     }
     // EndRegion
 
