@@ -3,12 +3,14 @@ package com.learning.onlinemarketplace.userservice.controller;
 import com.learning.onlinemarketplace.userservice.dto.request.*;
 import com.learning.onlinemarketplace.userservice.dto.response.ApiResponse;
 import com.learning.onlinemarketplace.userservice.dto.response.AuthenticationResponse;
+import com.learning.onlinemarketplace.userservice.dto.response.ResetPasswordResponse;
 import com.learning.onlinemarketplace.userservice.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/auth")
@@ -59,7 +61,7 @@ public class AuthController {
             return ResponseEntity.ok(ApiResponse.<String>builder()
                     .success(true)
                     .message("Verification code sent successfully.")
-                    .data("Verification code sent to " + email)
+                    .data("Verification code sent to " + email.getEmail())
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.<String>builder()
@@ -70,18 +72,19 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+    public ResponseEntity<ApiResponse<ResetPasswordResponse>> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
         try {
-            authService.resetPassword(resetPasswordRequest);
-            return ResponseEntity.ok(ApiResponse.<String>builder()
-                    .success(true)
-                    .message("Password reset successfully.")
-                    .data("Password reset successfully.")
+            var response = authService.resetPassword(resetPasswordRequest);
+            return ResponseEntity.ok(response);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(ApiResponse.<ResetPasswordResponse>builder()
+                    .success(false)
+                    .message(e.getReason())  // Lấy thông báo từ ResponseStatusException
                     .build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponse.<String>builder()
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.<ResetPasswordResponse>builder()
                     .success(false)
-                    .message(e.getMessage())
+                    .message("An unexpected error occurred")
                     .build());
         }
     }

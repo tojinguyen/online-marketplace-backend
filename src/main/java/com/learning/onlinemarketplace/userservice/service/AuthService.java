@@ -1,5 +1,6 @@
 package com.learning.onlinemarketplace.userservice.service;
 
+import com.learning.onlinemarketplace.service.BaseRedisService;
 import com.learning.onlinemarketplace.userservice.dto.request.LoginRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
@@ -11,6 +12,7 @@ import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.repository.UserRepository;
 import com.learning.onlinemarketplace.userservice.repository.VerificationCodeRepository;
 import com.learning.onlinemarketplace.userservice.security.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,10 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class AuthService {
     @Autowired
@@ -39,6 +41,9 @@ public class AuthService {
 
     @Autowired
     private VerificationCodeService verificationCodeService;
+
+    @Autowired
+    private BaseRedisService baseRedisService;
 
 
     // Region: Register
@@ -104,7 +109,10 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
         userRepository.save(user);
 
-        return ApiResponse.<ResetPasswordResponse>builder().success(true).message("Password reset successfully").build();
+        return ApiResponse.<ResetPasswordResponse>builder().success(true)
+                .message("Password reset successfully")
+                .data(new ResetPasswordResponse(true))
+                .build();
     }
     // EndRegion
 
@@ -126,7 +134,7 @@ public class AuthService {
     // EndRegion
 
     // Region: Logout
-    public void logout(String token) throws Exception {
+    public void logout(String token) {
         // Remove prefix if present
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
@@ -137,11 +145,14 @@ public class AuthService {
         }
 
         // Lấy thời gian hết hạn của token
-        Date expirationDate = jwtTokenProvider.getExpirationDateFromToken(token);
+        var expirationDate = jwtTokenProvider.getExpirationDateFromToken(token);
         long ttl = expirationDate.getTime() - System.currentTimeMillis();
         if (ttl <= 0) {
-            throw new Exception("Token đã hết hạn.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token has expired.");
         }
+
+        baseRedisService.set("blacklist:" + token, "blacklisted", ttl / 1000);
+        log.info("Token {} has been blacklisted", token);
     }
     // EndRegion
 
