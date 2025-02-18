@@ -21,6 +21,7 @@ public class EmailService {
             helper.setSubject("Verify Your Account");
             helper.setText("Your verification code is: " + code, true);
             mailSender.send(message);
+            log.info("Verification email sent to {}", email);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
         }

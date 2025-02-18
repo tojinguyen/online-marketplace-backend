@@ -1,6 +1,12 @@
 package com.learning.onlinemarketplace.userservice.security;
 
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
 
 @Component
@@ -23,24 +30,12 @@ public class JwtUtils {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenValidityInMilliseconds;
 
-    // Create Access Token
     public String generateAccessToken(UserAccount user) {
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidityInMilliseconds))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
+        return generateToken(user.getEmail(), accessTokenValidityInMilliseconds);
     }
 
-    // Create Refresh Token
     public String generateRefreshToken(UserAccount user) {
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenValidityInMilliseconds))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
+        return generateToken(user.getEmail(), refreshTokenValidityInMilliseconds);
     }
 
     public boolean validateToken(String token) {
@@ -64,20 +59,45 @@ public class JwtUtils {
         return false;
     }
 
-    public Date getExpirationDateFromToken(String token) {
-        // Loại bỏ tiền tố "Bearer " nếu có trong token
+    public Instant getExpirationDateFromToken(String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
 
-        // Parse token và lấy ra các claim
-        Claims claims = Jwts.parserBuilder()
+        var claims = Jwts.parserBuilder()
                 .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
 
-        // Lấy claim chứa ngày hết hạn của token
-        return claims.getExpiration();
+        return claims.getExpiration().toInstant();
+    }
+
+    private String generateToken(String userName, long expirationMs) {
+        try
+        {
+            JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS512).build();
+            var now = Instant.now();
+            var expirationTime = now.plusMillis(expirationMs);
+            JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                    .subject(userName)
+                    .issuer("OnlineMarketplace")
+                    .issueTime(Date.from(now))
+                    .expirationTime(Date.from(expirationTime))
+                    .claim("role", "USER")
+                    .build();
+
+            var payload = new Payload(jwtClaimsSet.toJSONObject());
+            var jwsObject = new JWSObject(header, payload);
+
+            jwsObject.sign(new MACSigner(secretKey));
+
+            return jwsObject.serialize();
+        }
+        catch (Exception e)
+        {
+            log.error("Failed to generate token", e);
+            throw new RuntimeException("Failed to generate token with message: " + e.getMessage());
+        }
     }
 }

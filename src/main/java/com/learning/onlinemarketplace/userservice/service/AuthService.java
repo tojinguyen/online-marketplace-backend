@@ -12,8 +12,8 @@ import com.learning.onlinemarketplace.userservice.model.UserAccount;
 import com.learning.onlinemarketplace.userservice.repository.UserRepository;
 import com.learning.onlinemarketplace.userservice.repository.VerificationCodeRepository;
 import com.learning.onlinemarketplace.userservice.security.JwtUtils;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,29 +21,25 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class AuthService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private VerificationCodeRepository verificationCodeRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JwtUtils jwtTokenProvider;
+    private final JwtUtils jwtTokenProvider;
 
-    @Autowired
-    private VerificationCodeService verificationCodeService;
+    private final VerificationCodeService verificationCodeService;
 
-    @Autowired
-    private BaseRedisService baseRedisService;
+    private final BaseRedisService baseRedisService;
 
 
     // Region: Register
@@ -144,9 +140,8 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token");
         }
 
-        // Lấy thời gian hết hạn của token
         var expirationDate = jwtTokenProvider.getExpirationDateFromToken(token);
-        long ttl = expirationDate.getTime() - System.currentTimeMillis();
+        long ttl = Date.from(expirationDate).getTime() - System.currentTimeMillis();
         if (ttl <= 0) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token has expired.");
         }

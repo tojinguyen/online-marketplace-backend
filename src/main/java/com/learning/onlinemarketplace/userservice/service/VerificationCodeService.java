@@ -2,10 +2,9 @@ package com.learning.onlinemarketplace.userservice.service;
 
 import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import com.learning.onlinemarketplace.userservice.model.VerificationCode;
-import com.learning.onlinemarketplace.userservice.repository.UserRepository;
 import com.learning.onlinemarketplace.userservice.repository.VerificationCodeRepository;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +14,11 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class VerificationCodeService {
-    @Autowired
-    private UserRepository userRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
 
-    @Autowired
-    private VerificationCodeRepository verificationCodeRepository;
-
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
     public void sendVerificationCode(String email, VerificationType type) {
         // Tạo mã xác nhận
@@ -33,7 +28,7 @@ public class VerificationCodeService {
         verificationCode.setExpiresAt(Instant.now().plus(Duration.ofMinutes(5)));
         verificationCode.setType(type);
 
-        log.info("Sending verification code to " + email + " with code " + verificationCode.getCode());
+        log.info("Sending verification code to {} with code {}", email, verificationCode.getCode());
 
         verificationCodeRepository.deleteByEmailAndType(email, type);
         verificationCodeRepository.save(verificationCode);
