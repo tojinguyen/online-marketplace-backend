@@ -1,6 +1,6 @@
 package com.learning.onlinemarketplace.userservice.service;
 
-import com.learning.onlinemarketplace.service.BaseRedisService;
+import com.learning.onlinemarketplace.common.service.BaseRedisService;
 import com.learning.onlinemarketplace.userservice.dto.request.LoginRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
