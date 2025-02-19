@@ -9,12 +9,13 @@ import com.learning.onlinemarketplace.userservice.dto.response.AuthenticationRes
 import com.learning.onlinemarketplace.userservice.dto.response.ResetPasswordResponse;
 import com.learning.onlinemarketplace.userservice.enums.VerificationType;
 import com.learning.onlinemarketplace.userservice.model.UserAccount;
-import com.learning.onlinemarketplace.userservice.repository.UserRepository;
+import com.learning.onlinemarketplace.userservice.repository.AccountRepository;
 import com.learning.onlinemarketplace.userservice.repository.VerificationCodeRepository;
 import com.learning.onlinemarketplace.userservice.security.JwtUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
+    private final AccountRepository userRepository;
 
     private final VerificationCodeRepository verificationCodeRepository;
 
@@ -40,6 +41,8 @@ public class AuthService {
     private final VerificationCodeService verificationCodeService;
 
     private final BaseRedisService baseRedisService;
+
+    private ProfileService profileService;
 
 
     // Region: Register

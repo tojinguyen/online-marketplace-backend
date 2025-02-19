@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,7 +33,7 @@ public class AuthController {
                     .data("Verification code sent to " + registerRequest.getEmail())
                     .build());
         } catch (Exception e) {
-            log.info("Failed to send verification code: " + e.getMessage());
+            log.info("Failed to send verification code: {}", e.getMessage());
             return ResponseEntity.badRequest().body(ApiResponse.<String>builder()
                     .success(false)
                     .message("Failed to send verification code.")
