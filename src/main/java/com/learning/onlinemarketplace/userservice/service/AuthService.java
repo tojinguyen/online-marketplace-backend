@@ -1,6 +1,6 @@
 package com.learning.onlinemarketplace.userservice.service;
 
-import com.learning.onlinemarketplace.common.service.BaseRedisService;
+import com.learning.onlinemarketplace.redisservice.service.BaseRedisService;
 import com.learning.onlinemarketplace.userservice.dto.request.LoginRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.ResetPasswordRequest;
 import com.learning.onlinemarketplace.userservice.dto.request.VerifyRegisterCodeRequest;
@@ -15,7 +15,6 @@ import com.learning.onlinemarketplace.userservice.security.JwtUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

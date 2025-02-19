@@ -1,4 +1,4 @@
-package com.learning.onlinemarketplace.common.config;
+package com.learning.onlinemarketplace.redisservice.config;
 
 
 import org.springframework.beans.factory.annotation.Value;

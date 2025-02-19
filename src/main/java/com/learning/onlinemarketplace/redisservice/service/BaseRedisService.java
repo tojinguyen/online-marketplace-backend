@@ -1,4 +1,4 @@
-package com.learning.onlinemarketplace.common.service;
+package com.learning.onlinemarketplace.redisservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
